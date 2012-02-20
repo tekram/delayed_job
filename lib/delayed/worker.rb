@@ -124,8 +124,10 @@ module Delayed
             count = result.sum
 
             break if @exit
-
+						
             if count.zero?
+							say "Count is zero."
+							say self.class.run_once
 							if self.class.run_once
 								break
 							else	
