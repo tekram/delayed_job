@@ -7,7 +7,7 @@ require 'logger'
 
 module Delayed
   class Worker
-    cattr_accessor :min_priority, :max_priority, :max_attempts, :max_run_time, :default_priority, :sleep_delay, :logger, :delay_jobs, :queues, :read_ahead
+    cattr_accessor :min_priority, :max_priority, :max_attempts, :max_run_time, :default_priority, :sleep_delay, :logger, :delay_jobs, :queues, :read_ahead, :run_once
     self.sleep_delay = 5
     self.max_attempts = 25
     self.max_run_time = 4.hours
@@ -15,6 +15,7 @@ module Delayed
     self.delay_jobs = true
     self.queues = []
     self.read_ahead = 5
+    #self.run_once = false
 
     # Add or remove plugins in this list before the worker is instantiated
     cattr_accessor :plugins
@@ -85,6 +86,7 @@ module Delayed
       self.class.sleep_delay = options[:sleep_delay] if options.has_key?(:sleep_delay)
       self.class.read_ahead = options[:read_ahead] if options.has_key?(:read_ahead)
       self.class.queues = options[:queues] if options.has_key?(:queues)
+      self.class.run_once = options[:run_once] if options.has_key?(:run_once)
 
       self.plugins.each { |klass| klass.new }
     end
@@ -124,7 +126,11 @@ module Delayed
             break if @exit
 
             if count.zero?
-              sleep(self.class.sleep_delay)
+							if self.class.run_once
+								break
+							else	
+								sleep(self.class.sleep_delay)
+							end
             else
               say "#{count} jobs processed at %.4f j/s, %d failed ..." % [count / realtime, result.last]
             end
