@@ -126,8 +126,8 @@ module Delayed
             break if @exit
 						
             if count.zero?
-							say "Count is zero."
-							say self.class.run_once
+							#say "Count is zero."
+							#say self.class.run_once
 							if self.class.run_once
 								break
 							else	
@@ -138,7 +138,7 @@ module Delayed
             end
           end
 
-          break if @exit
+          break if @exit or (self.class.run_once)# and count.zero?)
         end
       end
     end
